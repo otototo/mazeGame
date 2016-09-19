@@ -1,0 +1,248 @@
+<!DOCTYPE html>  
+<html manifest="maze.appcache" lang="en"> 
+<head>  
+	<meta charset="utf-8">  
+	<title>Game screen</title>   
+	<link rel="stylesheet" type="text/css" href="some.css" />  
+	<script type="text/javascript" src="js/StartScreen.js"></script>
+	<script type="text/javascript" src="js/MazeObject.js"></script>
+	<script type="text/javascript" src="js/Player.js"></script>
+	<script type="text/javascript" src="js/MazeGenerator.js"></script>
+	<script>
+
+window.onload = onWindowLoaded;
+
+function onWindowLoaded()
+{
+	Game.start();
+	animLoop(mainLoop);
+}
+
+function mainLoop(dt)
+{
+	if (Game.currState == StateEnum.START)
+	{
+		updateStartScreen();
+		redrawStartScreen();
+	}
+	else if (Game.currState == StateEnum.GAME)
+	{
+		updateGameScreen(dt);
+		redrawGameScreen();
+	}
+    else if (Game.currState == StateEnum.OVER)        
+    {        
+        var response = confirm("Would you like to save your score?");
+        if (response)
+        {
+            localStorage["score"] = Game.maze.getScore();
+        }
+        window.location.href = "Highscore.htm";
+    }        
+}
+
+function animLoop( render, element ) 
+{
+	var running, lastFrame = +new Date;
+	function loop( now ) 
+	{
+		// stop the loop if render returned false
+		if ( running !== false ) 
+		{
+			window.requestAnimFrame( loop, element );
+			var deltaT = now - lastFrame;
+			// do not render frame when deltaT is too high
+			if ( deltaT < 160 ) 
+			{
+				running = render( deltaT );
+			}
+			lastFrame = now;
+		}
+	}
+	loop( lastFrame );
+}
+
+/*function animloop()
+{
+	requestAnimFrame(animloop);
+	if (Game.currState == StateEnum.START)
+	{
+		updateStartScreen();
+		//redrawStartScreen();
+	}
+	else if (Game.currState == StateEnum.GAME)
+	{
+		updateGameScreen();
+		redrawGameScreen();
+	};
+}*/
+	
+StateEnum =
+{
+	START: 0,
+	GAME: 1,
+    OVER: 2
+}	
+
+var Game = {};
+
+
+
+// shim layer with setTimeout fallback
+window.requestAnimFrame = (
+function()
+{
+	return  window.requestAnimationFrame   || 
+		window.webkitRequestAnimationFrame || 
+		window.mozRequestAnimationFrame    || 
+		window.oRequestAnimationFrame      || 
+		window.msRequestAnimationFrame     || 
+		function( callback )
+		{
+			window.setTimeout(callback, 1000 / 60);
+		};
+})();
+
+Game.start = function()
+{
+	Game.currState = StateEnum.START;
+	Game.canvas = document.getElementById("gameCanvas");
+	var car = Maze.CAR_RED;
+	var level = Maze.LEVEL_KINDERGARDEN;
+	var color = "#FFFFFF"
+	if (supports_html5_storage())
+	{
+		Game.userName = localStorage["userName"];
+		level = localStorage["masteryLevel"];
+		if (level == 0) level = Maze.LEVEL_KINDERGARDEN;
+		else if (level == 1) level = Maze.LEVEL_CASUAL;
+		else if (level == 2) level = Maze.LEVEL_EASY;
+		
+		car = localStorage["modelIndex"];
+		if (car == "red") car = Maze.CAR_RED;
+		else if (car == "white") car = Maze.CAR_WHITE;
+		else if (car == "yellow") car = Maze.CAR_YELLOW;
+		color = localStorage["pathColor"];
+	}
+	
+	Game.maze = new Maze(200, 100, Game.canvas.width, Game.canvas.height, car);
+	Game.maze.generateMaze(new Block(1, 0), new Block(9, 1), color, level);
+	
+}
+
+function updateStartScreen()
+{
+	if (Key.isDown(Key.SPACE))
+	{
+		Game.currState = StateEnum.GAME;
+	}
+}
+
+function updateGameScreen(dt)
+{
+	Game.maze.update(dt);
+}
+
+function redrawGameScreen()
+{
+	var ctx = Game.canvas.getContext("2d");
+	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+	Game.maze.draw(ctx);
+    
+    if (Game.maze.gameState == 1)
+    {
+        Game.currState = StateEnum.OVER;
+    }        
+}
+
+function redrawStartScreen()
+{
+	Game.canvas.width = Game.canvas.width;
+	superCheckerBoard(Game.canvas);
+	bottomText(Game.canvas);
+}
+
+function supports_html5_storage() 
+{
+	try 
+	{
+		return 'localStorage' in window && window['localStorage'] !== null;
+	} 
+	catch (e) 
+	{
+		return false;
+	}
+}
+
+var Key = {
+	_pressed: {},
+
+	SHIFT: 16,
+	CTRL: 17,
+	SPACE: 32,
+	LEFT: 37,
+	UP: 38,
+	RIGHT: 39,
+	DOWN: 40,
+	A: 65,
+	D: 68,
+	E: 69,
+	M: 77,
+	Q: 81,
+	S: 83,
+	W: 87,
+	
+	consumeIsDown: function(keyCode) 
+	{
+		var ret = this._pressed[keyCode];
+		this._pressed[keyCode] = false;
+		return ret;
+	},
+	
+	isDown: function(keyCode) 
+	{
+		return this._pressed[keyCode];
+	},
+
+	onKeydown: function(event) 
+	{
+		this._pressed[event.keyCode] = true;
+	},
+
+	onKeyup: function(event) 
+	{
+		delete this._pressed[event.keyCode];
+	},
+	
+	clear: function() 
+	{ 
+		this._pressed = {}; 
+	}
+};
+
+window.addEventListener('keyup', function(event) { Key.onKeyup(event); }, false);
+window.addEventListener('keydown', function(event) { Key.onKeydown(event); }, false);
+window.addEventListener('blur', function() { Key.clear(); }, false);
+window.addEventListener('mouseup', function() {Game.maze.mouseup(event.pageX - 
+    Game.canvas.offsetLeft, event.pageY - Game.canvas.offsetTop);}, false);
+	</script>
+</head>  
+<body>  
+	<h1> Welcome to the game screen </h1>
+	<section id="gameScreen">
+		<canvas id="gameCanvas" width="800" height="400"></canvas> 
+	</section>
+	<button class="menubutton" onclick="window.location.href='Menu.htm' ">
+		<img width=80 height=40 src="res/leftarr.png"/>
+	</button>	
+	
+	<footer id="foot">		
+		<details>
+			<summary> Copyright 2012 </summary>
+			<p> - created by group "Noname": Jonas Incius & Paulina Morkyte. </p>
+			<p> for HTML5 course. </p>
+		</details>
+	</footer> 
+	
+</body>  
+</html> 

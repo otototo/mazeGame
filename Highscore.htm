@@ -1,0 +1,122 @@
+﻿<!doctype html>  
+<html manifest="maze.appcache" lang="en">  
+<head>  
+	<meta charset="utf-8">  
+	<title>Highscore</title>
+	<link rel="stylesheet" type="text/css" href="some.css" />  
+    <script>
+        window.onload = ScoreBoard;
+        
+        function ScoreBoard()
+        { 
+            if (!supports_html5_storage()) 
+            { 
+                alert("Your browser doesn't support local storage, you will play with default settings."); 
+                return;
+            }
+            var table = document.getElementsById("highScores");
+            var alias = localStorage["userName"];
+            var score = localStorage["score"];
+            var prev = new Array(alias, score);
+            var stop = false;
+            
+            for (var i = 0, row; (row = table.rows[i]); i++)
+            {
+                row = table.rows[i];
+                
+                alias = cells[1].childNodes[0].nodeValue;
+                score = cells[2].childNodes[0].nodeValue;
+                
+                if ((score = "") || (score < prev[1]))
+                {
+                    row.cells[1].childNodes[0].nodeValue = "Place for you?";
+                    row.cells[2].childNodes[0].nodeValue = "1"; 
+                    prev[0] = alias;
+                    prev[1] = score;
+                }
+            } 
+            
+        }
+        function emptyTable()
+        {
+            if (!supports_html5_storage()) 
+            { 
+                alert("Your browser doesn't support local storage, you will play with default settings."); 
+                return;
+            }
+            var table = document.getElementById("highScores");
+            
+            for (var i = 1; i < table.rows.length; i++)
+            {
+                row = table.rows[i];
+                row.cells[1].childNodes[0].nodeValue = "Place for you?";
+                row.cells[2].childNodes[0].nodeValue = "1";
+            }
+            
+        }
+        function supports_html5_storage() 
+        {
+            try 
+            {
+                return 'localStorage' in window && window['localStorage'] !== null;
+            } 
+            catch (e) 
+            {
+                return false;
+            }
+        }
+    </script>
+</head>  
+<body>  
+	<h1> Welcome to the highscore screen </h1>
+	<section id="highscore">
+		<button class="menubutton" onclick="emptyTable()">
+			Reset
+		</button>
+		<table id="highScores">
+			<tr>
+				<th>No.</th>
+				<th>Alias</th>
+				<th>Score</th>
+			</tr>
+			<tr>
+				<td>1</td>
+				<td>Čia gali būti tavo vardas</td>
+				<td>0</td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td>Čia gali būti tavo vardas</td>
+				<td>0</td>
+			</tr>
+			<tr>
+				<td>3</td>
+				<td>Čia gali būti tavo vardas</td>
+				<td>0</td>
+			</tr>
+			<tr>
+				<td>4</td>
+				<td>Čia gali būti tavo vardas</td>
+				<td>0</td>
+			</tr>
+			<tr>
+				<td>5</td>
+				<td>Čia gali būti tavo vardas</td>
+				<td>0</td>
+			</tr>
+		</table>
+	</section>
+	<button class="menubutton" onclick="window.location.href='Menu.htm' ">
+		<img width=80 height=40 src="res/leftarr.png"/>
+	</button>
+	
+	<footer id="foot">		
+		<details>
+			<summary> Copyright 2012 </summary>
+			<p> - created by group "Noname": Jonas Inčius & Paulina Morkytė. </p>
+			<p> for HTML5 course. </p>
+		</details>
+	</footer> 
+
+</body>  
+</html> 

@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html manifest="maze.appcache" lang="en"> 
+<head>
+	<meta charset="UTF-8">
+	<title> Labyrinth </title>
+	<link rel="stylesheet" type="text/css" href="some.css" />  
+	<script>
+
+function readyClicked()
+{
+	if (!supports_html5_storage()) 
+	{ 
+		alert("Your browser doesn't support local storage, you will play with default settings."); 
+		return;
+	}
+    var item = document.getElementById("userName");
+	if (item.value == "")
+		item.value = "Player";
+    localStorage["userName"] = item.value;
+	item = document.getElementById("mastery");
+    localStorage["masteryLevel"] = item.selectedIndex;
+	item = document.getElementById("car1");
+	if (!item.checked)
+	{
+		item = document.getElementById("car2");
+		if (!item.checked)
+		{
+			item = document.getElementById("car3");
+		}
+	}
+	localStorage["modelIndex"] = item.value;
+	item = document.getElementById("pathColor");
+    localStorage["pathColor"] = item.value;
+	
+	location.href='Game.htm';
+}	
+
+function supports_html5_storage() 
+{
+	try 
+	{
+		return 'localStorage' in window && window['localStorage'] !== null;
+	} 
+	catch (e) 
+	{
+		return false;
+	}
+}
+	</script>
+</head>
+<body>
+	<header id="starthead">
+		<h1> Get ready to rumble </h1>
+	</header>
+	
+	<section class="basechoise">
+		<form >
+			User name: <input id="userName" type="text" name="fname" value="Player" /> </br>
+		</form> 
+		<form>
+			Mastery level
+			<select name="mastery_level" id="mastery">
+				<option value="kindergarden"> Kindergarden </option>
+				<option value="casual"> Casual </option>
+				<option value="easy"> Easy </option>
+			</select>
+		</form>
+	</section>
+	
+	<section class="carchoise">
+		<form>
+			<label for="carpick">
+				Choose your awesome vehicle
+			</label> </br>
+			
+			<section>
+				<input id="car1" type="radio" name="group1" value="red" class="carbuttons"> 
+				<input id="car2" type="radio" name="group1" value="white" checked class="carbuttons"> 
+				<input id="car3" type="radio" name="group1" value="yellow" class="carbuttons">
+			</section>
+			
+			<section>
+				<img src="res/redsmall.png" class="carimages"/>
+				<img src="res/whitesmall.png" class="carimages"/>
+				<img src="res/yellowsmall.png" class="carimages"/>
+			</section>
+		</form>
+	</section>
+	
+	<section id="colorpicker">	
+		<label for="colorpick">
+			Pick your favourite color
+		</label> </br>
+		<input id="pathColor" type="color" name="colorpicker"> </br>
+	</section>
+	
+	<section id="startbuttons">
+		<button class="menubutton" type="button" onclick="readyClicked()"> Ready </button> </br> 
+		<button  class="menubutton" onclick="window.location.href='Menu.htm' ">
+			<img width=80 height=40 src="res/leftarr.png"/>
+		</button>
+	</section>	
+	
+	<footer id="foot">		
+		<details>
+			<summary> Copyright 2012 </summary>
+			<p> - created by group "Noname": Jonas Inčius & Paulina Morkytė. </p>
+			<p> for HTML5 course. </p>
+		</details>
+	</footer> 
+	
+</body>
+
+</html>
